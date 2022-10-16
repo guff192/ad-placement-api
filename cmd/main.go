@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 
 	placement "github.com/guff192/ad-placement-api"
 	"github.com/guff192/ad-placement-api/pkg/handler"
@@ -14,24 +17,39 @@ import (
 )
 
 func main() {
+	// configuring logger
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetOutput(os.Stdout)
 	logrus.SetReportCaller(true)
 
-	if err := initConfig(); err != nil {
+	// reading configs
+	config, err := initConfig()
+	if err != nil {
 		logrus.Fatalf("error occured while parsing config: %s", err.Error())
 	}
 
 	handlers := handler.NewHandler()
 
+	// creating and running server
 	srv := new(placement.Server)
 	go func() {
-		if err := srv.Run("8000", handlers.InitRoutes()); err != nil {
+		if err := srv.Run(config.Port, handlers.InitRoutes()); err != nil {
 			logrus.Fatalf("error occured while running http server: %s", err.Error())
 		}
 	}()
 
 	logrus.Info("Http server started")
+
+	// graceful shutdown
+	exit := make(chan os.Signal, 1)
+	signal.Notify(exit, syscall.SIGTERM, syscall.SIGINT)
+	<-exit
+
+	logrus.Print("Http server shutting down")
+
+	if err := srv.Shutdown(context.Background()); err != nil {
+		logrus.Fatalf("error occured while shutting down http server: %s", err.Error())
+	}
 }
 
 type partnerAddr struct {
@@ -56,12 +74,12 @@ func ParsePartnerAddr(s string) (*partnerAddr, error) {
 	}, nil
 }
 
-type flagsArray []partnerAddr
+type partnerArray []partnerAddr
 
-func (fa *flagsArray) String() string {
+func (pa *partnerArray) String() string {
 	var result string = ""
-	if len(*fa) > 0 {
-		for _, value := range *fa {
+	if len(*pa) > 0 {
+		for _, value := range *pa {
 			addr := value.Addr
 			port := strconv.Itoa(value.Port)
 			result = result + strings.Join([]string{addr, port}, ":") + ", "
@@ -70,7 +88,7 @@ func (fa *flagsArray) String() string {
 	return result
 }
 
-func (fa *flagsArray) Set(s string) error {
+func (pa *partnerArray) Set(s string) error {
 	values := strings.Split(s, ",")
 	if len(values) <= 0 {
 		return errors.New("No values for partners! Use -d flag to set them")
@@ -80,26 +98,35 @@ func (fa *flagsArray) Set(s string) error {
 		if address, err := ParsePartnerAddr(v); err != nil {
 			return err
 		} else {
-			*fa = append(*fa, *address)
+			*pa = append(*pa, *address)
 		}
 	}
 	return nil
 }
 
-func initConfig() error {
-	var partners flagsArray
+type Config struct {
+	Port     int
+	Partners partnerArray
+}
+
+func initConfig() (*Config, error) {
+	var partners partnerArray
+
 	port := flag.Int("p", 0, "port to start service")
 	flag.Var(&partners, "d", "list of partners in <ip1:port1,ip2:port2...> format")
 	flag.Parse()
 
 	if *port == 0 || len(partners) == 0 {
-		return errors.New("No port or partners specified")
+		return nil, errors.New("No port or partners specified")
 	} else if len(partners) > 10 {
-		return errors.New("Too much partners! You can define up to 10 partners")
+		return nil, errors.New("Too much partners! You can define up to 10 partners")
 	}
 
 	fmt.Println("port is: ", *port)
 	fmt.Println("partners are: ", partners.String())
 
-	return nil
+	return &Config{
+		Port:     *port,
+		Partners: partners,
+	}, nil
 }
