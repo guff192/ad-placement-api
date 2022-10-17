@@ -4,22 +4,21 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	placement "github.com/guff192/ad-placement-api"
 )
 
-type Context struct {
+type context struct {
 	Ip        string `json:"ip"`
 	UserAgent string `json:"user_agent"`
 }
 
-type PlacementRequest struct {
+type placementRequest struct {
 	Id      string `json:"id"`
 	Tiles   []Tile `json:"tiles"`
 	Context `json:"context"`
 }
 
 func (h Handler) getAds(c *gin.Context) {
-	var input placement.PlacementRequest
+	var input placementRequest
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "WRONG_SCHEMA")
 		return
