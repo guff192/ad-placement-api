@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
-	"strings"
 	"syscall"
 
 	placement "github.com/guff192/ad-placement-api"
@@ -52,65 +50,13 @@ func main() {
 	}
 }
 
-type partnerAddr struct {
-	Addr string
-	Port int
-}
-
-func ParsePartnerAddr(s string) (*partnerAddr, error) {
-	splittedStr := strings.Split(s, ":")
-	if len(splittedStr) != 2 {
-		return nil, errors.New("Unable to parse partner address. Please, check the format and try again.")
-	}
-
-	port, err := strconv.Atoi(splittedStr[1])
-	if err != nil {
-		return nil, errors.New("Unable to parse partner port: \"" + splittedStr[1] + "\"! It should be an integer.")
-	}
-
-	return &partnerAddr{
-		Addr: splittedStr[0],
-		Port: port,
-	}, nil
-}
-
-type partnerArray []partnerAddr
-
-func (pa *partnerArray) String() string {
-	var result string = ""
-	if len(*pa) > 0 {
-		for _, value := range *pa {
-			addr := value.Addr
-			port := strconv.Itoa(value.Port)
-			result = result + strings.Join([]string{addr, port}, ":") + ", "
-		}
-	}
-	return result
-}
-
-func (pa *partnerArray) Set(s string) error {
-	values := strings.Split(s, ",")
-	if len(values) <= 0 {
-		return errors.New("No values for partners! Use -d flag to set them")
-	}
-
-	for _, v := range values {
-		if address, err := ParsePartnerAddr(v); err != nil {
-			return err
-		} else {
-			*pa = append(*pa, *address)
-		}
-	}
-	return nil
-}
-
 type Config struct {
 	Port     int
-	Partners partnerArray
+	Partners placement.PartnerArray
 }
 
 func initConfig() (*Config, error) {
-	var partners partnerArray
+	var partners placement.PartnerArray
 
 	port := flag.Int("p", 0, "port to start service")
 	flag.Var(&partners, "d", "list of partners in <ip1:port1,ip2:port2...> format")
