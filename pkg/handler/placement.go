@@ -7,6 +7,17 @@ import (
 	placement "github.com/guff192/ad-placement-api"
 )
 
+type Context struct {
+	Ip        string `json:"ip"`
+	UserAgent string `json:"user_agent"`
+}
+
+type PlacementRequest struct {
+	Id      string `json:"id"`
+	Tiles   []Tile `json:"tiles"`
+	Context `json:"context"`
+}
+
 func (h Handler) getAds(c *gin.Context) {
 	var input placement.PlacementRequest
 	if err := c.BindJSON(&input); err != nil {
@@ -22,4 +33,5 @@ func (h Handler) getAds(c *gin.Context) {
 		return
 	}
 
+	h.service.GetImps()
 }
