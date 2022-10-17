@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	placement "github.com/guff192/ad-placement-api"
 	"github.com/guff192/ad-placement-api/pkg/handler"
+	"github.com/guff192/ad-placement-api/pkg/service"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,7 +27,8 @@ func main() {
 		logrus.Fatalf("error occured while parsing config: %s", err.Error())
 	}
 
-	handlers := handler.NewHandler()
+	services := service.NewService(config.Partners)
+	handlers := handler.NewHandler(services)
 
 	// creating and running server
 	srv := new(placement.Server)
@@ -67,9 +69,6 @@ func initConfig() (*Config, error) {
 	} else if len(partners) > 10 {
 		return nil, errors.New("Too much partners! You can define up to 10 partners")
 	}
-
-	fmt.Println("port is: ", *port)
-	fmt.Println("partners are: ", partners.String())
 
 	return &Config{
 		Port:     *port,

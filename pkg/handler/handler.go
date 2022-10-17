@@ -1,12 +1,18 @@
 package handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/guff192/ad-placement-api/pkg/service"
+)
 
 type Handler struct {
+	service *service.Service
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(service *service.Service) *Handler {
+	return &Handler{
+		service: service,
+	}
 }
 
 func (h Handler) InitRoutes() *gin.Engine {
@@ -14,7 +20,7 @@ func (h Handler) InitRoutes() *gin.Engine {
 
 	placements := router.Group("/placemnets")
 	{
-		placements.POST("request/", h.placementRequest)
+		placements.POST("request/", h.getAds)
 	}
 
 	return router
