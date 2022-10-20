@@ -1,3 +1,6 @@
+# MacOS Binaries
+.DS_Store
+
 # create by https://github.com/iamcco/coc-gitignore (Sun Oct 16 2022 20:17:05 GMT+0400 (Армения, стандартное время))
 # Go.gitignore:
 # Binaries for programs and plugins
