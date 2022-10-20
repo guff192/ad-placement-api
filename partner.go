@@ -6,11 +6,13 @@ import (
 	"strings"
 )
 
+// struct representing address of partner
 type PartnerAddr struct {
 	Addr string
 	Port int
 }
 
+// parses PartnerAddr from string
 func ParsePartnerAddr(s string) (*PartnerAddr, error) {
 	splittedStr := strings.Split(s, ":")
 	if len(splittedStr) != 2 {
@@ -28,8 +30,10 @@ func ParsePartnerAddr(s string) (*PartnerAddr, error) {
 	}, nil
 }
 
+// this type is used to parse in flag values
 type PartnerArray []PartnerAddr
 
+// string representation, required by flag.Value interface
 func (pa *PartnerArray) String() string {
 	var result string = ""
 	if len(*pa) > 0 {
@@ -42,6 +46,7 @@ func (pa *PartnerArray) String() string {
 	return result
 }
 
+// setter method, required by flag.Value interface
 func (pa *PartnerArray) Set(s string) error {
 	values := strings.Split(s, ",")
 	if len(values) <= 0 {
