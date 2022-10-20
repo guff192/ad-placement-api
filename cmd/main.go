@@ -45,7 +45,7 @@ func main() {
 	signal.Notify(exit, syscall.SIGTERM, syscall.SIGINT)
 	<-exit
 
-	logrus.Print("Http server shutting down")
+	logrus.Info("Http server shutting down")
 
 	if err := srv.Shutdown(context.Background()); err != nil {
 		logrus.Fatalf("error occured while shutting down http server: %s", err.Error())
