@@ -8,6 +8,7 @@ import (
 	"time"
 
 	placement "github.com/guff192/ad-placement-api"
+	"github.com/sirupsen/logrus"
 )
 
 type ImpService struct {
@@ -96,6 +97,8 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 	if err != nil {
 		return
 	}
+
+	logrus.Info("Getting imps from partner: " + request.URL.RawPath)
 
 	// getting the response and checking Content-Type
 	response, err := client.Do(request)
