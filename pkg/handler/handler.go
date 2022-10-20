@@ -20,7 +20,7 @@ func (h Handler) InitRoutes() *gin.Engine {
 
 	placements := router.Group("/placemnets")
 	{
-		placements.POST("request/", h.getAds)
+		placements.POST("/request", h.getAds)
 	}
 
 	return router
