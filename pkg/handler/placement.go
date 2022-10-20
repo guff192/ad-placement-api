@@ -4,17 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	placement "github.com/guff192/ad-placement-api"
 )
 
-type context struct {
-	Ip        string `json:"ip"`
-	UserAgent string `json:"user_agent"`
-}
-
 type placementRequest struct {
-	Id      string `json:"id"`
-	Tiles   []Tile `json:"tiles"`
-	Context `json:"context"`
+	Id      string            `json:"id"`
+	Tiles   []placement.Tile  `json:"tiles"`
+	Context placement.Context `json:"context"`
 }
 
 func (h Handler) getAds(c *gin.Context) {
@@ -32,5 +28,5 @@ func (h Handler) getAds(c *gin.Context) {
 		return
 	}
 
-	h.service.GetImps()
+	h.service.GetAllImps()
 }
