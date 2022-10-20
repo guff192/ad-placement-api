@@ -49,8 +49,8 @@ jobs:
       - name: Build SSP binary
         run: go build -o builds/ssp cmd/main.go
 
-      #- name: Making it executable
-      #  run: chmod +x builds/ssp
+      - name: Making it executable
+        run: chmod +x builds/ssp
 
       # run a battery of tests
       - name: happy path
