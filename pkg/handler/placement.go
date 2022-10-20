@@ -23,10 +23,10 @@ func (h Handler) getAds(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, "EMPTY_TILES")
 		return
 	}
-	if input.Ip == "" || input.UserAgent == "" || input.Id == "" {
+	if input.Id == "" || input.Context.UserAgent == "" || input.Id == "" {
 		newErrorResponse(c, http.StatusBadRequest, "EMPTY_FIELD")
 		return
 	}
 
-	h.service.GetAllImps()
+	h.service.GetAllImps(input.Id, input.Tiles, input.Context)
 }
