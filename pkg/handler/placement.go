@@ -13,6 +13,11 @@ type placementRequest struct {
 	Context placement.Context `json:"context"`
 }
 
+type adsResponse struct {
+	Id  string                  `json:"id"`
+	Imp []placement.ImpResponse `json:"imp"`
+}
+
 func (h Handler) getAds(c *gin.Context) {
 	var input placementRequest
 	if err := c.BindJSON(&input); err != nil {
@@ -28,5 +33,16 @@ func (h Handler) getAds(c *gin.Context) {
 		return
 	}
 
-	h.service.GetAllImps(input.Id, input.Tiles, input.Context)
+	ads, err := h.service.GetAdsForPlacements(input.Id, input.Tiles, input.Context)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "error getting ads: "+err.Error())
+		return
+	}
+
+	resp := &adsResponse{
+		Id:  input.Id,
+		Imp: ads,
+	}
+
+	c.JSON(http.StatusOK, *resp)
 }

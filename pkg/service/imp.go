@@ -26,7 +26,35 @@ type BidRequest struct {
 	Context placement.Context      `json:"context"`
 }
 
-func (s *ImpService) GetAllImps(id string, tiles []placement.Tile, context placement.Context) ([]placement.Imp, error) {
+func (s *ImpService) GetAdsForPlacements(id string, tiles []placement.Tile, context placement.Context) ([]placement.ImpResponse, error) {
+	imps, err := s.getAllImps(id, tiles, context)
+	if err != nil {
+		return nil, err
+	}
+
+	mostExpensiveImps := s.findMostExpensiveImps(imps)
+
+	var ads []placement.ImpResponse
+	for _, tile := range tiles {
+		id := tile.Id
+
+		imp, ok := mostExpensiveImps[id]
+		if ok {
+			resp := &placement.ImpResponse{
+				Id:     id,
+				Width:  imp.Width,
+				Height: imp.Height,
+				Title:  imp.Title,
+				URL:    imp.URL,
+			}
+			ads = append(ads, *resp)
+		}
+	}
+
+	return ads, nil
+}
+
+func (s *ImpService) getAllImps(id string, tiles []placement.Tile, context placement.Context) ([]placement.Imp, error) {
 	var reqImps []placement.ImpRequest
 	for _, tile := range tiles {
 		imp := tile.ToImpRequest()
@@ -86,4 +114,24 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 	}
 
 	*imps = append(*imps, impResponse.Imp...)
+}
+
+func (s *ImpService) findMostExpensiveImps(imps []placement.Imp) map[uint]placement.Imp {
+	// creating map for storing the most expensive imp for each id
+	impMap := make(map[uint]placement.Imp)
+
+	// filling in map with the most expensive imps
+	for _, imp := range imps {
+		id := imp.Id
+
+		mostExpensiveImp, ok := impMap[id]
+		if !ok {
+			impMap[id] = imp
+		}
+		if imp.Price > mostExpensiveImp.Price {
+			impMap[id] = imp
+		}
+	}
+
+	return impMap
 }
