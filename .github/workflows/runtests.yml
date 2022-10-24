@@ -18,7 +18,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -36,11 +36,17 @@ jobs:
       - name: Download DSP binary
         run: curl -o builds/dsp https://dummy-dsp.s3.eu-central-1.amazonaws.com/dsp
 
+      - name: Copy dsp bin
+        run: cp builds/dsp .
+
       - name: Making it executable
         run: chmod +x builds/dsp
 
       - name: Download tests binary
         run: curl -o builds/tests https://dummy-dsp.s3.eu-central-1.amazonaws.com/tests
+
+      - name: Copy tests bin
+        run: cp builds/tests .
 
       - name: Making it executable
         run: chmod +x builds/tests
@@ -53,11 +59,11 @@ jobs:
         run: chmod +x builds/ssp
 
       # run a battery of tests
-      - name: happy path
-        run: (cd builds && ./tests -test.v -test.run Test_HappyPath) && sleep 1
-
       - name: not totally happy path, easy difficulty
         run: (cd builds && ./tests -test.v -test.run Test_LessHappyEasy) && sleep 1
+
+      - name: happy path
+        run: (cd builds && ./tests -test.v -test.run Test_HappyPath) && sleep 1
 
       - name: not totally happy path, medium difficulty
         run: (cd builds && ./tests -test.v -test.run Test_LessHappyMedium) && sleep 1
