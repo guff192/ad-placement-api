@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	placement "github.com/guff192/ad-placement-api"
+	"github.com/sirupsen/logrus"
 )
 
 type placementRequest struct {
@@ -20,6 +21,9 @@ type adsResponse struct {
 
 func (h Handler) getAds(c *gin.Context) {
 	var input placementRequest
+
+	logrus.Info("Got http request")
+
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "WRONG_SCHEMA")
 		return
