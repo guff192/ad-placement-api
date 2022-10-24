@@ -18,7 +18,7 @@ func NewHandler(service *service.Service) *Handler {
 func (h Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
-	placements := router.Group("/placemnets")
+	placements := router.Group("/placements")
 	{
 		placements.POST("/request", h.getAds)
 	}
