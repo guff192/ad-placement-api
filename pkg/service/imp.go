@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	placement "github.com/guff192/ad-placement-api"
@@ -92,13 +93,14 @@ type impPartnerResponse struct {
 
 func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.PartnerAddr, reqBytes []byte, imps *[]placement.Imp) {
 	// creating request
-	addr, port, reqBodyReader := partner.Addr, partner.Port, bytes.NewReader(reqBytes)
-	request, err := http.NewRequest("POST", addr+":"+string(port), reqBodyReader)
+	reqBodyReader := bytes.NewReader(reqBytes)
+	url := partner.Addr + ":" + strconv.Itoa(partner.Port) + "/bid_request"
+	request, err := http.NewRequest("POST", url, reqBodyReader)
 	if err != nil {
 		return
 	}
 
-	logrus.Info("Getting imps from partner: " + request.URL.RawPath)
+	logrus.Info("Getting imps from partner: " + url)
 
 	// getting the response and checking Content-Type
 	response, err := client.Do(request)
