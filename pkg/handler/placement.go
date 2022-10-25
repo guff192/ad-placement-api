@@ -37,6 +37,8 @@ func (h Handler) getAds(c *gin.Context) {
 		return
 	}
 
+	logrus.Debug(input)
+
 	ads, err := h.service.GetAdsForPlacements(input.Id, input.Tiles, input.Context)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, "error getting ads: "+err.Error())
