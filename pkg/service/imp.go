@@ -35,6 +35,7 @@ func (s *ImpService) GetAdsForPlacements(id string, tiles []placement.Tile, cont
 	}
 
 	logrus.Info("Collected imps from partners for request [" + id + "]")
+	logrus.Debug(imps)
 
 	mostExpensiveImps := s.findMostExpensiveImps(imps)
 
