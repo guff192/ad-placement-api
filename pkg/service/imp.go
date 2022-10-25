@@ -125,6 +125,9 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 		return
 	}
 
+	logrus.Info("\nGot response from partner <" + url + ">")
+	logrus.Debug(impResponse)
+
 	*imps = append(*imps, impResponse.Imp...)
 }
 
