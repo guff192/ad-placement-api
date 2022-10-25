@@ -111,6 +111,7 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 	url := "http://" + partner.Addr + ":" + strconv.Itoa(partner.Port) + "/bid_request"
 	request, err := http.NewRequest("POST", url, reqBodyReader)
 	if err != nil {
+		logrus.Warn("Error while creating request: " + err.Error())
 		return
 	}
 
@@ -119,6 +120,7 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 	// getting the response and checking Content-Type
 	response, err := client.Do(request)
 	if err != nil || response.Header.Get("Content-Type") != "application/json" {
+		logrus.Warn("Error while getting partner response: " + err.Error())
 		return
 	}
 
@@ -126,9 +128,11 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 	var impResponse impPartnerResponse
 	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
+		logrus.Warn("Error while reading response body: " + err.Error())
 		return
 	}
 	if err = json.Unmarshal(bodyBytes, &impResponse); err != nil {
+		logrus.Warn("Error while unmarshalling response body: " + err.Error())
 		return
 	}
 
