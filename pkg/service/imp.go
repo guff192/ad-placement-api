@@ -55,6 +55,8 @@ func (s *ImpService) GetAdsForPlacements(id string, tiles []placement.Tile, cont
 		}
 	}
 
+	logrus.Debug(ads)
+
 	return ads, nil
 }
 
