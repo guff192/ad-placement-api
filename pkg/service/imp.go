@@ -67,6 +67,8 @@ func (s *ImpService) getAllImps(id string, tiles []placement.Tile, context place
 		reqImps = append(reqImps, *imp)
 	}
 
+	logrus.Debug(reqImps)
+
 	// creating request to partners
 	request := &BidRequest{
 		Id:      id,
