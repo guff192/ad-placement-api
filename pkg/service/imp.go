@@ -101,7 +101,7 @@ type impPartnerResponse struct {
 func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.PartnerAddr, reqBytes []byte, imps *[]placement.Imp) {
 	// creating request
 	reqBodyReader := bytes.NewReader(reqBytes)
-	url := partner.Addr + ":" + strconv.Itoa(partner.Port) + "/bid_request"
+	url := "http://" + partner.Addr + ":" + strconv.Itoa(partner.Port) + "/bid_request"
 	request, err := http.NewRequest("POST", url, reqBodyReader)
 	if err != nil {
 		return
