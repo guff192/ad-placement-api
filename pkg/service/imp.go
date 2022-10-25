@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	placement "github.com/guff192/ad-placement-api"
@@ -83,12 +84,15 @@ func (s *ImpService) getAllImps(id string, tiles []placement.Tile, context place
 
 	// collecting imps from partners
 	var imps []placement.Imp
+	var wg sync.WaitGroup // wait group for waiting all responses to be done
 	client := &http.Client{
 		Timeout: 250 * time.Millisecond,
 	}
 	for _, partner := range s.Partners {
-		go s.getImpsFromAddr(client, partner, reqBytes, &imps)
+		wg.Add(1)
+		go s.getImpsFromAddr(client, partner, reqBytes, &imps, &wg)
 	}
+	wg.Wait()
 
 	return imps, nil
 }
@@ -98,7 +102,10 @@ type impPartnerResponse struct {
 	Imp []placement.Imp `json:"imp"`
 }
 
-func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.PartnerAddr, reqBytes []byte, imps *[]placement.Imp) {
+func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.PartnerAddr, reqBytes []byte, imps *[]placement.Imp, wg *sync.WaitGroup) {
+	// decrement waitgroup counter when done
+	defer wg.Done()
+
 	// creating request
 	reqBodyReader := bytes.NewReader(reqBytes)
 	url := "http://" + partner.Addr + ":" + strconv.Itoa(partner.Port) + "/bid_request"
