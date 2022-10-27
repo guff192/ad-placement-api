@@ -148,7 +148,6 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 	}
 
 	logrus.Info("\nGot response from partner <" + url + ">")
-	logrus.Debug(impResponse)
 
 	imps <- impResponse.Imp
 }
