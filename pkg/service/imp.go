@@ -133,6 +133,8 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 		return
 	}
 
+	logrus.Info("Got response from partner: " + url)
+
 	// reading body bytes and unmarshalling to var
 	var impResponse impPartnerResponse
 	bodyBytes, err := io.ReadAll(response.Body)
