@@ -99,6 +99,7 @@ func (s *ImpService) getAllImps(id string, tiles []placement.Tile, context place
 	// collecting all results into one slice
 	var impResult []placement.Imp
 	for imps := range impCh {
+		logrus.Info("Parsing partner response")
 		impResult = append(impResult, imps...)
 	}
 
