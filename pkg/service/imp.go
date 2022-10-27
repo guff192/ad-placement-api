@@ -128,7 +128,7 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 
 	// getting the response and checking Content-Type
 	response, err := client.Do(request)
-	if err != nil || response.Header.Get("Content-Type") != "application/json" {
+	if err != nil {
 		logrus.Warn("Error while getting partner response: " + err.Error())
 		return
 	}
