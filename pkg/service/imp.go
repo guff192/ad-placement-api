@@ -36,7 +36,6 @@ func (s *ImpService) GetAdsForPlacements(id string, tiles []placement.Tile, cont
 	}
 
 	logrus.Info("Collected imps from partners for request [" + id + "]")
-	logrus.Debug(imps)
 
 	mostExpensiveImps := s.findMostExpensiveImps(imps)
 
@@ -69,8 +68,6 @@ func (s *ImpService) getAllImps(id string, tiles []placement.Tile, context place
 		reqImps = append(reqImps, *imp)
 	}
 
-	logrus.Debug(reqImps)
-
 	// creating request to partners
 	request := &BidRequest{
 		Id:      id,
@@ -99,7 +96,6 @@ func (s *ImpService) getAllImps(id string, tiles []placement.Tile, context place
 	// collecting all results into one slice
 	var impResult []placement.Imp
 	for imps := range impCh {
-		logrus.Info("Parsing partner response")
 		impResult = append(impResult, imps...)
 	}
 
@@ -134,6 +130,11 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 	}
 
 	logrus.Info("Got response from partner: " + url)
+
+	if response.StatusCode == http.StatusNoContent {
+		logrus.Warn("No content from partner: " + url)
+		return
+	}
 
 	// reading body bytes and unmarshalling to var
 	var impResponse impPartnerResponse
