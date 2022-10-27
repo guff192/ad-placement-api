@@ -32,7 +32,7 @@ func (h Handler) getAds(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, "EMPTY_TILES")
 		return
 	}
-	if input.Id == "" || input.Context.UserAgent == "" || input.Id == "" {
+	if input.Id == "" || input.Context.UserAgent == "" || len(input.Tiles) == 0 {
 		newErrorResponse(c, http.StatusBadRequest, "EMPTY_FIELD")
 		return
 	}
