@@ -83,18 +83,26 @@ func (s *ImpService) getAllImps(id string, tiles []placement.Tile, context place
 	}
 
 	// collecting imps from partners
-	var imps []placement.Imp
+	impCh := make(chan []placement.Imp, len(s.Partners))
 	var wg sync.WaitGroup // wait group for waiting all responses to be done
 	client := &http.Client{
 		Timeout: 250 * time.Millisecond,
 	}
 	for _, partner := range s.Partners {
 		wg.Add(1)
-		go s.getImpsFromAddr(client, partner, reqBytes, &imps, &wg)
+		go s.getImpsFromAddr(client, partner, reqBytes, impCh, &wg)
 	}
-	wg.Wait()
+	wg.Wait() // waiting for all requests to be done
 
-	return imps, nil
+	close(impCh)
+
+	// collecting all results into one slice
+	var impResult []placement.Imp
+	for imps := range impCh {
+		impResult = append(impResult, imps...)
+	}
+
+	return impResult, nil
 }
 
 type impPartnerResponse struct {
@@ -102,7 +110,7 @@ type impPartnerResponse struct {
 	Imp []placement.Imp `json:"imp"`
 }
 
-func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.PartnerAddr, reqBytes []byte, imps *[]placement.Imp, wg *sync.WaitGroup) {
+func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.PartnerAddr, reqBytes []byte, imps chan []placement.Imp, wg *sync.WaitGroup) {
 	// decrement waitgroup counter when done
 	defer wg.Done()
 
@@ -139,7 +147,7 @@ func (s *ImpService) getImpsFromAddr(client *http.Client, partner placement.Part
 	logrus.Info("\nGot response from partner <" + url + ">")
 	logrus.Debug(impResponse)
 
-	*imps = append(*imps, impResponse.Imp...)
+	imps <- impResponse.Imp
 }
 
 func (s *ImpService) findMostExpensiveImps(imps []placement.Imp) map[uint]placement.Imp {
