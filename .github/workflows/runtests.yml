@@ -71,11 +71,11 @@ jobs:
       - name: not totally happy path, hard difficulty
         run: (cd builds && ./tests -test.v -test.run Test_LessHappyHard) && sleep 1
 
-      - name: not happy at all, easy difficulty
-        run: (cd builds && ./tests -test.v -test.run Test_NotHappyEasy) && sleep 1
-
       - name: not happy at all, medium difficulty
         run: (cd builds && ./tests -test.v -test.run Test_NotHappyMedium) && sleep 1
+
+      - name: not happy at all, easy difficulty
+        run: (cd builds && ./tests -test.v -test.run Test_NotHappyEasy) && sleep 1
 
       - name: not happy at all, hard difficulty
         run: (cd builds && ./tests -test.v -test.run Test_NotHappyHard) && sleep 1
